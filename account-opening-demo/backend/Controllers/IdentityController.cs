@@ -18,12 +18,7 @@ public class IdentityController : ControllerBase
         _statusService = statusService;
     }
 
-    /// <summary>
-    /// Creates a Stripe Identity VerificationSession and returns the
-    /// client_secret the frontend needs to launch Stripe's hosted
-    /// verification UI. Stripe's API is form-encoded, not JSON, which
-    /// trips people up the first time they integrate it.
-    /// </summary>
+
     [HttpPost("verification-session")]
     public async Task<IActionResult> CreateVerificationSession([FromBody] CreateIdentitySessionRequest request)
     {
@@ -55,13 +50,6 @@ public class IdentityController : ControllerBase
         return Ok(new { verificationSessionId, clientSecret, status });
     }
 
-    /// <summary>
-    /// Polls Stripe for the current status of a verification session.
-    /// In production you'd primarily rely on Stripe's identity.verification_session.verified
-    /// webhook rather than polling, this endpoint exists so the demo frontend
-    /// has something simple to call without also standing up a public webhook
-    /// receiver, which needs a stable public URL Stripe can reach.
-    /// </summary>
     [HttpGet("verification-session/{verificationSessionId}")]
     public async Task<IActionResult> GetVerificationStatus(string verificationSessionId, [FromQuery] string sessionId)
     {

@@ -1,20 +1,25 @@
 # Digital Account Opening Demo
 
-A solo end-to-end demo that mirrors the account-opening flow used by real Banking-as-a-Service platforms: connect a bank account, verify identity, and receive a confirmation email. Built to demonstrate hands-on integration work with production-grade vendor APIs, outside of a day job.
+A solo, end-to-end simulation of the account-opening flow used by real Banking-as-a-Service platforms: link a bank account, verify identity, and receive a confirmation email, built by integrating three real vendor APIs from scratch.
+
+**Demo video:** _(coming soon)_
+**Live app:** _(coming soon)_
+
+## Why I built this
+
+I've spent three years implementing and debugging vendor integrations (Middesk, Socure, MoneyKit, Kinective, SendGrid) inside an existing production banking platform serving 400,000+ credit union members. That work is almost entirely about consuming and troubleshooting integrations someone else designed.
+
+This project is the other half of that story: building one from scratch, alone, reading unfamiliar docs with no existing codebase or team to lean on. It's meant to show the same integration instincts applied end to end, from an empty repo to a working flow.
 
 ## What it does
 
-A user fills out a short onboarding form, then moves through three steps:
+A user fills out a short form, then moves through three real vendor integrations:
 
-1. **Account linking** via [Plaid](https://plaid.com/docs/) — connects a bank account using Plaid Link and retrieves basic account info from a test institution.
-2. **Identity verification** via [Stripe Identity](https://stripe.com/docs/identity) — creates a verification session and confirms the user's identity in test mode.
-3. **Confirmation notification** via [SendGrid](https://docs.sendgrid.com/) — sends an approval email once both steps succeed.
+1. **Account linking** via [Plaid](https://plaid.com/docs/) — the Plaid Link widget connects a bank account and retrieves account details from a test institution.
+2. **Identity verification** via [Stripe Identity](https://stripe.com/docs/identity) — a verification session launches Stripe's hosted document/selfie check and the backend polls for a verified result.
+3. **Confirmation email** via [SendGrid](https://docs.sendgrid.com/) — an approval email sends automatically once both prior steps succeed.
 
-The backend orchestrates all three integrations and exposes a simple status endpoint so the frontend can show the user's progress through the flow.
-
-## Why this exists
-
-Three years of production experience has been implementing and debugging vendor integrations (Middesk, Socure, MoneyKit, Kinective, SendGrid) inside an existing banking platform. This project is the other half of that story: building an integration from scratch, alone, reading unfamiliar docs with no team or existing codebase to lean on.
+The backend orchestrates all three integrations behind a simple status endpoint, so the frontend can show live progress through the flow.
 
 ## Stack
 
@@ -22,81 +27,12 @@ Three years of production experience has been implementing and debugging vendor 
 - **Frontend:** React + TypeScript (Vite)
 - **Vendors:** Plaid (sandbox), Stripe Identity (test mode), SendGrid (free tier)
 
-## Project structure
+## A few notes on the build
 
-```
-account-opening-demo/
-├── backend/
-│   ├── Controllers/
-│   │   ├── PlaidController.cs        # link token creation + public token exchange
-│   │   ├── IdentityController.cs     # Stripe Identity verification sessions
-│   │   └── NotificationController.cs # SendGrid confirmation email
-│   ├── Services/
-│   │   └── OnboardingStatusService.cs # in-memory status tracking per session
-│   ├── Models/
-│   │   └── OnboardingModels.cs
-│   ├── Program.cs
-│   ├── appsettings.Example.json      # copy to appsettings.Development.json and fill in keys
-│   └── AccountOpeningDemo.csproj
-└── frontend/
-    ├── src/
-    │   ├── components/
-    │   │   ├── PlaidLinkButton.tsx
-    │   │   └── StatusFlow.tsx
-    │   ├── App.tsx
-    │   └── main.tsx
-    ├── index.html
-    ├── package.json
-    └── vite.config.ts
-```
+- Token handoffs (Plaid's link token/public token exchange, Stripe's client secret) are handled server-side only; vendor secrets never reach the browser.
+- Identity verification status is polled rather than handled via webhook, a deliberate scope choice for a project without a stable public endpoint for vendors to call back to.
+- This is a demo, not a product: no user authentication, no production-grade security hardening, and error handling covers the happy path rather than every edge case. The goal was clean, correct integration plumbing end to end, not a shippable onboarding product.
 
 ## Setup
 
-### 1. Get sandbox/test API keys (all free, self-serve, no sales call)
-
-- **Plaid:** sign up at dashboard.plaid.com, grab your `client_id` and `sandbox` secret from the Keys page.
-- **Stripe:** sign up at dashboard.stripe.com, grab your test-mode secret key, and enable Identity in the dashboard.
-- **SendGrid:** sign up at sendgrid.com, create an API key with Mail Send permission, and verify a single sender email.
-
-### 2. Backend
-
-```bash
-cd backend
-cp appsettings.Example.json appsettings.Development.json
-# fill in your Plaid, Stripe, and SendGrid keys in appsettings.Development.json
-dotnet restore
-dotnet run
-```
-
-API runs on `https://localhost:5001` by default.
-
-### 3. Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-App runs on `http://localhost:5173` and proxies API calls to the backend.
-
-## Build order (recommended, roughly a weekend)
-
-1. Plaid Link end-to-end (link token → Plaid Link widget → public token exchange → account info)
-2. Stripe Identity verification session (create session → redirect/embed → poll for verified status)
-3. SendGrid confirmation email, fired once both prior steps report success
-4. Wire the three into one flow with a simple status view
-5. Deploy: frontend to Vercel, backend to Render or Fly.io (both have free tiers)
-6. Record a 60–90 second screen capture walking through the flow
-
-## Explicit non-goals
-
-This is a demo, not a product. Deliberately skipped: real user authentication, production-grade security hardening, a polished design system, and error handling beyond the happy path. The point is to show clean, correct integration plumbing, not to ship a real onboarding product.
-
-## Live demo
-
-_(add link once deployed)_
-
-## Demo video
-
-_(add link once recorded)_
+Setup instructions, including how to get sandbox API keys for each vendor and run the project locally, are in [SETUP.md](./SETUP.md).

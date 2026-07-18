@@ -24,11 +24,6 @@ public class PlaidController : ControllerBase
         _statusService = statusService;
     }
 
-    /// <summary>
-    /// Step 1: create a Link token, which the frontend uses to initialize
-    /// the Plaid Link widget. This has to happen server-side because it
-    /// requires the client_id/secret pair, which should never reach the browser.
-    /// </summary>
     [HttpPost("link-token")]
     public async Task<IActionResult> CreateLinkToken([FromBody] CreateIdentitySessionRequest request)
     {
@@ -62,13 +57,6 @@ public class PlaidController : ControllerBase
         return Ok(new { linkToken });
     }
 
-    /// <summary>
-    /// Step 2: once the user completes the Plaid Link widget in the
-    /// frontend, exchange the public_token it returns for a permanent
-    /// access_token, then pull basic account info to confirm the link
-    /// actually worked. In a real system the access_token would be
-    /// encrypted at rest, never logged, and tied to the member's record.
-    /// </summary>
     [HttpPost("exchange-token")]
     public async Task<IActionResult> ExchangePublicToken([FromBody] ExchangePublicTokenRequest request)
     {

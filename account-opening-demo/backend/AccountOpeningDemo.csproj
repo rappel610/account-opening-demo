@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- SendGrid's official SDK. Plaid and Stripe are called directly via HttpClient
-         below rather than their SDKs, partly to keep the dependency list small,
-         and partly because raw HTTP calls make the integration logic easier to
-         show and explain in an interview than SDK-wrapped calls would be. -->
     <PackageReference Include="SendGrid" Version="9.29.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>

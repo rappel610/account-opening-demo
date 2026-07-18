@@ -6,8 +6,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// One named HttpClient per vendor keeps base addresses and auth headers
-// scoped cleanly, rather than juggling raw HttpClient instances everywhere.
 builder.Services.AddHttpClient("Plaid", client =>
 {
     var baseUrl = builder.Configuration["Plaid:BaseUrl"] ?? "https://sandbox.plaid.com";
@@ -23,9 +21,7 @@ builder.Services.AddHttpClient("Stripe", client =>
         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", secretKey);
 });
 
-// In-memory only. A real implementation would persist this in SQL Server
-// or similar, but a demo scoped to a weekend doesn't need durable storage
-// to prove the integration logic works.
+
 builder.Services.AddSingleton<OnboardingStatusService>();
 
 builder.Services.AddCors(options =>

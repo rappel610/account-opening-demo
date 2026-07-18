@@ -18,13 +18,6 @@ public class NotificationController : ControllerBase
         _statusService = statusService;
     }
 
-    /// <summary>
-    /// Sends the approval confirmation email once account linking and
-    /// identity verification have both succeeded. Mirrors the same
-    /// pattern used for automated SendGrid notifications in production:
-    /// build the message, send it, and don't let a notification failure
-    /// silently look like the whole onboarding flow failed.
-    /// </summary>
     [HttpPost("send-confirmation")]
     public async Task<IActionResult> SendConfirmation([FromBody] SendConfirmationRequest request)
     {

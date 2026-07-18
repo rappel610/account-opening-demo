@@ -3,9 +3,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { PlaidLinkButton } from "./components/PlaidLinkButton";
 import { StatusFlow } from "./components/StatusFlow";
 
-// loadStripe() is meant to be called once at module scope, not inside a
-// component or event handler, it caches the underlying script load so
-// repeated calls don't re-fetch Stripe.js from their CDN.
+
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 type Stage = "form" | "linking" | "verifying" | "notifying" | "complete";
@@ -106,24 +104,14 @@ export default function App() {
       return;
     }
 
-    // This launches Stripe's own hosted modal: document capture, a
-    // selfie check, and in test mode a simulated "test" document flow
-    // that lets you walk the whole thing without a real ID. Stripe
-    // owns this UI entirely, our job is just to hand it the
-    // client_secret and react to how the user leaves the modal.
+  
     const { error: verifyError } = await stripe.verifyIdentity(clientSecret);
 
     if (verifyError) {
-      // A cancelled or abandoned modal lands here too, not just hard
-      // failures, so this isn't necessarily a bug, just an incomplete
-      // verification the user can retry.
       setError(`Identity verification was not completed: ${verifyError.message}`);
       return;
     }
 
-    // The modal closing successfully doesn't guarantee "verified" status
-    // yet, Stripe processes the submission asynchronously. Poll our
-    // backend, which in turn checks Stripe, until it resolves.
     await pollVerificationStatus(verificationSessionId);
   }
 
@@ -150,10 +138,6 @@ export default function App() {
       return;
     }
 
-    // Stripe's test-mode processing is fast but not instant. Poll a
-    // handful of times with a short delay rather than assuming the
-    // first check will already show "verified". Give up after ~10
-    // attempts (about 20 seconds) rather than polling forever.
     if (attempt < 10) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       await pollVerificationStatus(verificationSessionId, attempt + 1);
