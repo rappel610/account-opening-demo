@@ -1,0 +1,15 @@
+# Backend
+backend/bin/
+backend/obj/
+backend/appsettings.Development.json
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Env / secrets
+.env
+.env.local
+
+# OS
+.DS_Store
