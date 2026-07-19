@@ -2,8 +2,8 @@
 
 A solo, end-to-end simulation of the account-opening flow used by real Banking-as-a-Service platforms: link a bank account, verify identity, and receive a confirmation email, built by integrating three real vendor APIs from scratch.
 
-**Demo video:** _(coming soon)_
-**Live app:** _(coming soon)_
+**Demo video:** https://www.loom.com/share/77f9d7dae4f040028c70ca4e279f3c4c
+**Live app:** https://account-opening-demo.vercel.app
 
 ## Why I built this
 
