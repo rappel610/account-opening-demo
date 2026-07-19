@@ -3,8 +3,9 @@ import { loadStripe } from "@stripe/stripe-js";
 import { PlaidLinkButton } from "./components/PlaidLinkButton";
 import { StatusFlow } from "./components/StatusFlow";
 
-
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+const API_BASE = import.meta.env.VITE_API_URL || "";
 
 type Stage = "form" | "linking" | "verifying" | "notifying" | "complete";
 
@@ -37,7 +38,7 @@ export default function App() {
     e.preventDefault();
     setError(null);
 
-    const sessionRes = await fetch("/api/onboarding/session", {
+    const sessionRes = await fetch(`${API_BASE}/api/onboarding/session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ applicantName: name, applicantEmail: email }),
@@ -49,7 +50,7 @@ export default function App() {
     const { sessionId: newSessionId } = await sessionRes.json();
     setSessionId(newSessionId);
 
-    const linkTokenRes = await fetch("/api/plaid/link-token", {
+    const linkTokenRes = await fetch(`${API_BASE}/api/plaid/link-token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sessionId: newSessionId }),
@@ -66,7 +67,7 @@ export default function App() {
   async function handlePlaidSuccess(publicToken: string) {
     if (!sessionId) return;
 
-    const exchangeRes = await fetch("/api/plaid/exchange-token", {
+    const exchangeRes = await fetch(`${API_BASE}/api/plaid/exchange-token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sessionId, publicToken }),
@@ -86,7 +87,7 @@ export default function App() {
     if (!sessionId) return;
     setStage("verifying");
 
-    const verificationRes = await fetch("/api/identity/verification-session", {
+    const verificationRes = await fetch(`${API_BASE}/api/identity/verification-session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sessionId }),
@@ -104,7 +105,6 @@ export default function App() {
       return;
     }
 
-  
     const { error: verifyError } = await stripe.verifyIdentity(clientSecret);
 
     if (verifyError) {
@@ -119,7 +119,7 @@ export default function App() {
     if (!sessionId) return;
 
     const res = await fetch(
-      `/api/identity/verification-session/${verificationSessionId}?sessionId=${sessionId}`
+      `${API_BASE}/api/identity/verification-session/${verificationSessionId}?sessionId=${sessionId}`
     );
     if (!res.ok) {
       setError("Could not check verification status.");
@@ -152,7 +152,7 @@ export default function App() {
     if (!sessionId) return;
     setStage("notifying");
 
-    const res = await fetch("/api/notifications/send-confirmation", {
+    const res = await fetch(`${API_BASE}/api/notifications/send-confirmation`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sessionId }),

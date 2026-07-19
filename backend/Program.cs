@@ -21,15 +21,16 @@ builder.Services.AddHttpClient("Stripe", client =>
         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", secretKey);
 });
 
-
 builder.Services.AddSingleton<OnboardingStatusService>();
 
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        var allowedOrigin = builder.Configuration["Cors:AllowedOrigin"] ?? "http://localhost:5173";
-        policy.WithOrigins(allowedOrigin)
+        var allowedOrigins = (builder.Configuration["Cors:AllowedOrigin"] ?? "http://localhost:5173")
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
